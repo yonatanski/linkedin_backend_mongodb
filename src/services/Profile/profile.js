@@ -25,4 +25,18 @@ profilesRouter.get("/", async(req, res, next) => {
     }
 })
 
+/************************* (post) create a profile ************************/
+profilesRouter.get("/:id", async(req, res, next) => {
+    try {
+        const reqProfiles = await ProfileModel.findById(req.params.id)
+        if(reqProfiles){
+            res.status(201).send(reqProfiles)        
+        }else{
+            res.status(404).send(`Profile with id ${req.params.id} not found`)        
+        }
+    } catch (error) {
+        next(error)
+    }
+})
+
 export default profilesRouter
