@@ -167,6 +167,27 @@ profilesRouter.put("/:profileId/experiences/:experienceId", async(req, res, next
     }
 })
 
+/************************* (delete) delete a specific experience of a profile's ************************/
+
+profilesRouter.delete("/:profileId/experiences/:experienceId", async(req, res, next) => {
+    try {
+        const modifiedProfile = await ProfileModel.findByIdAndUpdate(
+            req.params.profileId,
+            {$pull:{experiences : {_id : req.params.experienceId}}},
+            {new : true}
+        )
+        if(modifiedProfile){
+                res.send()
+        } else {
+            next(createError(404, `could not find the specific profile with id ${req.params.profileId}`))
+
+        }
+
+    } catch (error) {
+        next(error)
+    }
+})
+
 
 
 export default profilesRouter
