@@ -141,5 +141,32 @@ profilesRouter.get("/:profileId/experiences/:experienceId", async(req, res, next
     }
 })
 
+/************************* (put) edit a profile's specific experience ************************/
+profilesRouter.put("/:profileId/experiences/:experienceId", async(req, res, next) => {
+    try {
+        const reqProfile = await ProfileModel.findByIdAndUpdate(req.params.profileId)
+        if(reqProfile){
+            const index = reqProfile.experiences.findIndex(exp => exp._id.toString() === req.params.experienceId)
+            if(index !== -1){
+                reqProfile.experiences[index] = {
+                    ...reqProfile.experiences[index].toObject(),
+                    ...req.body
+                }
+                await reqProfile.save();
+                res.send(reqProfile)
+            } else {
+                next(createError(404, `could not find the specific experience with id ${req.params.experienceId}`))
+            }
+        } else {
+            next(createError(404, `could not find the specific profile with id ${req.params.profileId}`))
+
+        }
+
+    } catch (error) {
+        next(error)
+    }
+})
+
+
 
 export default profilesRouter
