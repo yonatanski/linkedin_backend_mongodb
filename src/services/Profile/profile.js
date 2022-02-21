@@ -1,8 +1,21 @@
 import express, {Router} from "express";
 import ProfileModel from './profile-model.js'
 import q2m from "query-to-mongo"
+import {v2 as cloudinary} from 'cloudinary'
+import {CloudinaryStorage} from 'multer-storage-cloudinary'
+import multer from "multer";
 
 const profilesRouter = Router()
+
+
+const cloudinaryUploader = multer({
+    storage: new CloudinaryStorage({
+    cloudinary,
+      params:{
+        folder:'linkedin'
+      }
+    })
+  }).single("image")
 
 /************************* (post) create a profile ************************/
 profilesRouter.post("/", async(req, res, next) => {
@@ -11,6 +24,22 @@ profilesRouter.post("/", async(req, res, next) => {
         const newProfile = new ProfileModel(req.body)
         const {_id} = await newProfile.save()
         res.status(201).send({_id : _id})        
+    } catch (error) {
+        next(error)
+    }
+})
+
+/************************* (put) edit a profile ************************/
+profilesRouter.post("/:profileId/picture", cloudinaryUploader, async(req, res, next) => {
+    try {
+        const updatedProfile = await ProfileModel.findByIdAndUpdate(req.params.profileId, 
+            {image:req.file.path},
+            {new : true})
+        if(updatedProfile){
+            res.status(201).send(updatedProfile)        
+        }else{
+            res.status(404).send(`Profile with id ${req.params.profileId} not found`)        
+        }
     } catch (error) {
         next(error)
     }
@@ -141,6 +170,32 @@ profilesRouter.get("/:profileId/experiences/:experienceId", async(req, res, next
     }
 })
 
+
+/************************* (post) upload an image for specific experience ************************/
+profilesRouter.post("/:profileId/experiences/:experienceId/picture", cloudinaryUploader, async(req, res, next) => {
+    try {
+        const reqProfile = await ProfileModel.findByIdAndUpdate(req.params.profileId)
+        if(reqProfile){
+            const index = reqProfile.experiences.findIndex(exp => exp._id.toString() === req.params.experienceId)
+            if(index !== -1){
+                reqProfile.experiences[index] = {
+                    ...reqProfile.experiences[index].toObject(),
+                    image: req.file.path
+                }
+                await reqProfile.save();
+                res.send(reqProfile)
+            } else {
+                next(createError(404, `could not find the specific experience with id ${req.params.experienceId}`))
+            }
+        } else {
+            next(createError(404, `could not find the specific profile with id ${req.params.profileId}`))
+
+        }
+
+    } catch (error) {
+        next(error)
+    }
+})
 /************************* (put) edit a profile's specific experience ************************/
 profilesRouter.put("/:profileId/experiences/:experienceId", async(req, res, next) => {
     try {
