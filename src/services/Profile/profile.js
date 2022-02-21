@@ -60,8 +60,16 @@ profilesRouter.get("/:profileId/downloadPdf",async(req,res,next)=>{
 
     try {
         const profile = await ProfileModel.findById(req.params.profileId)
+        if(!profile){
+            res.sendStatus(404).send({ message: `profile with ${req.params.profileId} is not found!` })
+        } else {
+            const pdfStream = await getPDFReadableStream(profile);
+            res.setHeader("Content-Type", "application/pdf");
+            pdfStream.pipe(res);
+            pdfStream.end();
+        }
         res.setHeader("Content-Disposition","attachment=resume.pdf")
-        const source = getPDFReadableStream("profile")
+        const source = getPDFReadableStream(profile)
         const destination = res
         pipeline(source,destination, err => {
             if(err) next(err)
