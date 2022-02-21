@@ -2,6 +2,12 @@ import mongoose from "mongoose";
 
 
 const {Schema, model} = mongoose
+
+// const connectionSchema = new Schema({
+//     profileId : { type: Schema.Types.ObjectId, ref: "Profile" },
+
+// })
+
 const profileSchema = new Schema({
     
     "name": {type:String, required:true},
@@ -12,6 +18,8 @@ const profileSchema = new Schema({
     "area": {type:String, required:true},
     "image": {type:String, required:true},
     "username": {type:String, required:true, unique:true}, 
+    // "connection":[connectionSchema],
+
     "experiences" : [{
             "role": {type:String, required:true},
             "company":{type:String, required:true},

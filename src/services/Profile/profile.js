@@ -4,6 +4,11 @@ import q2m from "query-to-mongo"
 import {v2 as cloudinary} from 'cloudinary'
 import {CloudinaryStorage} from 'multer-storage-cloudinary'
 import multer from "multer";
+import { pipeline } from "stream";
+import json2csv from 'json2csv'
+import { profile } from "console";
+import { getPDFReadableStream } from "../file/pdfMaker.js";
+
 
 const profilesRouter = Router()
 
@@ -16,6 +21,10 @@ const cloudinaryUploader = multer({
       }
     })
   }).single("image")
+
+
+
+
 
 /************************* (post) create a profile ************************/
 profilesRouter.post("/", async(req, res, next) => {
@@ -44,6 +53,24 @@ profilesRouter.post("/:profileId/picture", cloudinaryUploader, async(req, res, n
         next(error)
     }
 })
+
+/************************* (put) edit a profile ************************/
+
+profilesRouter.get("/:profileId/downloadPdf",async(req,res,next)=>{
+
+    try {
+        const profile = await ProfileModel.findById(req.params.profileId)
+        res.setHeader("Content-Disposition","attachment=resume.pdf")
+        const source = getPDFReadableStream("profile")
+        const destination = res
+        pipeline(source,destination, err => {
+            if(err) next(err)
+        })
+    } catch (error) {
+        next(error)
+    }
+})
+
 
 /************************* (get) getting all profiles ************************/
 profilesRouter.get("/", async(req, res, next) => {
@@ -151,6 +178,48 @@ profilesRouter.get("/:profileId/experiences", async(req, res, next) => {
     }
 })
 
+/************************* (csv) create a csv file of experiences ************************/
+profilesRouter.get("/:profileId/experiences/csv", async(req, res, next) => {
+    try {
+        const stream = ProfileModel.find().stream();
+        stream.on('data', function(doc) {
+            console.log(doc);
+        });
+        stream.on('error', function(err) {
+            console.log(err);
+        });
+        stream.on('end', function() {
+            console.log('All done!');
+        });
+
+        // res.setHeader("Content-Disposition","attachment; filename = experiences.csv")
+/*Products.findById(id).then(res => {
+    const jsonRes = res.toJSON();
+    // Here jsonRes is JSON
+})*/ 
+//     console.log("i am loging")
+//         const stream = await ProfileModel.findById(req.params.profileId).stream()
+//         stream.on('data', function(doc) {
+            
+//             console.log(doc);
+//         });
+//         stream.on('error', function(err) {
+//             console.log(err);
+            
+//         });
+//         stream.on('end', function() {
+//             console.log('All done!');
+// });
+        
+//         const destination = res
+//         pipeline(source, transform, destination, err => {
+//             if(err) next(err)
+//         })
+    } catch (error) {
+        next(error)
+    }
+})
+
 /************************* (get) get specific experience of a specific user ************************/
 profilesRouter.get("/:profileId/experiences/:experienceId", async(req, res, next) => {
     try {
@@ -160,7 +229,7 @@ profilesRouter.get("/:profileId/experiences/:experienceId", async(req, res, next
             if(reqExperience){
                 res.status(201).send(reqExperience)        
             } else{
-                res.status(404).send(`Experience with ${req.params.experienceId} not found`)        
+                res.status(404).send(`Experience with id ${req.params.experienceId} not found`)        
             }
         }else{
             res.status(404).send(`Profile with id ${req.params.profileId} not found`)        
@@ -169,6 +238,7 @@ profilesRouter.get("/:profileId/experiences/:experienceId", async(req, res, next
         next(error)
     }
 })
+
 
 
 /************************* (post) upload an image for specific experience ************************/
