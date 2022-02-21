@@ -14,4 +14,15 @@ profilesRouter.post("/", async(req, res, next) => {
         next(error)
     }
 })
+
+/************************* (post) create a profile ************************/
+profilesRouter.get("/", async(req, res, next) => {
+    try {
+        const allProfiles = await ProfileModel.find()
+        res.status(201).send(allProfiles)        
+    } catch (error) {
+        next(error)
+    }
+})
+
 export default profilesRouter
