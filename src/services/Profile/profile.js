@@ -7,6 +7,7 @@ const profilesRouter = Router()
 /************************* (post) create a profile ************************/
 profilesRouter.post("/", async(req, res, next) => {
     try {
+
         const newProfile = new ProfileModel(req.body)
         const {_id} = await newProfile.save()
         res.status(201).send({_id : _id})        
@@ -18,8 +19,24 @@ profilesRouter.post("/", async(req, res, next) => {
 /************************* (get) getting all profiles ************************/
 profilesRouter.get("/", async(req, res, next) => {
     try {
-        const allProfiles = await ProfileModel.find()
-        res.status(201).send(allProfiles)        
+
+          const defaultQuery = {
+            sort : "=createdAt",
+            skip:0,
+            limit:20
+        }
+
+        const query = {...defaultQuery, ...req.query}
+        const mongoQuery = q2m(query);
+        const total = await ProfileModel.countDocuments(mongoQuery.criteria);
+
+        const profiles  = await ProfileModel
+        .find(mongoQuery.criteria)
+        .sort(mongoQuery.options.sort)
+        .skip(mongoQuery.options.skip)
+        .limit(mongoQuery.options.limit)
+
+        res.status(201).send(profiles)        
     } catch (error) {
         next(error)
     }
