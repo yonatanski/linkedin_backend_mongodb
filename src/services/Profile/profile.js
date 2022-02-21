@@ -36,7 +36,11 @@ profilesRouter.get("/", async(req, res, next) => {
         .skip(mongoQuery.options.skip)
         .limit(mongoQuery.options.limit)
 
-        res.status(201).send(profiles)        
+        res.status(201).send({
+            links:mongoQuery.links("/profiles",total),
+            total,
+            totalPages: Math.ceil(total/mongoQuery.options.limit),
+            profiles})        
     } catch (error) {
         next(error)
     }
@@ -83,4 +87,59 @@ profilesRouter.delete("/:profileId", async(req, res, next) => {
         next(error)
     }
 })
+
+/************************* (post) post a Experience to specific profile ************************/
+profilesRouter.post("/:profileId/experiences", async(req, res, next) => {
+    try {
+        const reqProfile = await ProfileModel.findById(req.params.profileId)
+        if(reqProfile){
+            const newExprience = {...req.body}
+            const updatedProfile = await ProfileModel.findByIdAndUpdate(
+                req.params.profileId,
+                {$push: {experiences : newExprience}},
+                {new : true}
+            ) 
+            res.status(201).send(updatedProfile)        
+        }else{
+            res.status(404).send(`Profile with id ${req.params.profileId} not found`)        
+        }
+    } catch (error) {
+        next(error)
+    }
+})
+
+/************************* (get) get all experiences of a specific user ************************/
+profilesRouter.get("/:profileId/experiences", async(req, res, next) => {
+    try {
+        const reqProfile = await ProfileModel.findById(req.params.profileId)
+        if(reqProfile){
+            res.status(201).send(reqProfile.experiences)        
+        }else{
+            res.status(404).send(`Profile with id ${req.params.profileId} not found`)        
+        }
+    } catch (error) {
+        next(error)
+    }
+})
+
+/************************* (get) get specific experience of a specific user ************************/
+profilesRouter.get("/:profileId/experiences/:experienceId", async(req, res, next) => {
+    try {
+        const reqProfile = await ProfileModel.findById(req.params.profileId)
+        if(reqProfile){
+            const reqExperience = reqProfile.experiences.find(exp => exp._id.toString() === req.params.experienceId)
+            if(reqExperience){
+                res.status(201).send(reqExperience)        
+            } else{
+                res.status(404).send(`Experience with ${req.params.experienceId} not found`)        
+            }
+        }else{
+            res.status(404).send(`Profile with id ${req.params.profileId} not found`)        
+        }
+    } catch (error) {
+        next(error)
+    }
+})
+
+
 export default profilesRouter
