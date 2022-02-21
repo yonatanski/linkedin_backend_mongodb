@@ -1,12 +1,12 @@
 {
-  "name": "linkedin_backend_mongodb",
+  "name": "build-week-3-linkedin",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon -r dotenv/config e js ./src/server.js"
+    "dev": "nodemon -r dotenv/config -e js ./src/server.js"
   },
   "repository": {
     "type": "git",
@@ -27,7 +27,6 @@
     "cors": "^2.8.5",
     "express": "^4.17.3",
     "express-list-endpoints": "^6.0.0",
-    "http-errors": "^2.0.0",
     "mongoose": "^6.2.2",
     "query-to-mongo": "^0.10.1"
   }
