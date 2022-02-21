@@ -53,4 +53,17 @@ profilesRouter.put("/:profileId", async(req, res, next) => {
     }
 })
 
+/************************* (put) edit a profile ************************/
+profilesRouter.delete("/:profileId", async(req, res, next) => {
+    try {
+        const updatedProfile = await ProfileModel.findByIdAndDelete(req.params.profileId)
+        if(updatedProfile){
+            res.status(204).send()        
+        }else{
+            res.status(404).send(`Profile with id ${req.params.profileId} not found`)        
+        }
+    } catch (error) {
+        next(error)
+    }
+})
 export default profilesRouter
