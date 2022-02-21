@@ -15,7 +15,7 @@ profilesRouter.post("/", async(req, res, next) => {
     }
 })
 
-/************************* (post) create a profile ************************/
+/************************* (get) getting all profiles ************************/
 profilesRouter.get("/", async(req, res, next) => {
     try {
         const allProfiles = await ProfileModel.find()
@@ -25,14 +25,28 @@ profilesRouter.get("/", async(req, res, next) => {
     }
 })
 
-/************************* (post) create a profile ************************/
-profilesRouter.get("/:id", async(req, res, next) => {
+/************************* (get) get a specific profile ************************/
+profilesRouter.get("/:profileId", async(req, res, next) => {
     try {
-        const reqProfiles = await ProfileModel.findById(req.params.id)
+        const reqProfiles = await ProfileModel.findById(req.params.profileId)
         if(reqProfiles){
             res.status(201).send(reqProfiles)        
         }else{
-            res.status(404).send(`Profile with id ${req.params.id} not found`)        
+            res.status(404).send(`Profile with id ${req.params.profileId} not found`)        
+        }
+    } catch (error) {
+        next(error)
+    }
+})
+
+/************************* (put) edit a profile ************************/
+profilesRouter.put("/:profileId", async(req, res, next) => {
+    try {
+        const updatedProfile = await ProfileModel.findByIdAndUpdate(req.params.profileId, req.body,{new : true})
+        if(updatedProfile){
+            res.status(201).send(updatedProfile)        
+        }else{
+            res.status(404).send(`Profile with id ${req.params.profileId} not found`)        
         }
     } catch (error) {
         next(error)
