@@ -49,15 +49,29 @@ postRouter.get("/:postId", async (req, res, next) => {
 postRouter.put("/:postId", async (req, res, next) => {
   try {
     const postId = req.params.postId
-    const updated
+    const updatedPost = await PostsModel.findByIdAndUpdate(postId, req.body, {
+      new: true,
+    })
+    if (updatedPost) {
+      res.send(updatedPost)
+    } else {
+      next(createHttpError(404, `POST  WITH ID:- ${postId} CANNOT UPDATED  !!`))
+    }
   } catch (error) {
     next(error)
   }
 })
 // -----------------------------------DELETE--------------------------------------
 
-postRouter.delete("/", async (req, res, next) => {
+postRouter.delete("/:postId", async (req, res, next) => {
   try {
+    const postId = req.params.postId
+    const deletedPost = await PostsModel.findByIdAndDelete(postId)
+    if (deletedPost) {
+      res.status(204).send(deletedPost)
+    } else {
+      next(createHttpError(404, `POST  WITH ID:- ${postId} NOT FOUND  !!`))
+    }
   } catch (error) {
     next(error)
   }
