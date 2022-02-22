@@ -7,6 +7,7 @@ import { CloudinaryStorage } from "multer-storage-cloudinary"
 import { validationResult } from "express-validator"
 import { newBookValidation } from "./validation.js"
 import PostsModel from "./schema.js"
+import ProfileModel from "../Profile/profile-model.js"
 
 const postRouter = express.Router()
 
@@ -55,8 +56,8 @@ postRouter.get("/:postId", async (req, res, next) => {
   try {
     const postId = req.params.postId
     const getPosts = await PostsModel.findById(postId).populate({
-      path: "users",
-      select: "",
+      path: "user",
+      select: "name surname image bio",
     })
     if (getPosts) {
       res.send(getPosts)
