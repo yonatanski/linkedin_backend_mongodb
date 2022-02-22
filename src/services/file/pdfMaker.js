@@ -54,7 +54,7 @@ const printer = new PdfPrinter(fonts);
         alignment: 'justify',
         columns: [
             {
-            //  ...experiences
+           //  ...experiences
             },
             [
 
