@@ -134,7 +134,7 @@ postRouter.post("/:postId/uploadPostImg", cloudinaryUploaderImageUrl, async (req
 
 // ******************************************* ROUTE FOR COMMENTS *******************************************
 
-// -----------------------------------PUT--------------------------------------
+// -----------------------------------PUT COMMENT--------------------------------------
 postRouter.post("/:postId/comments", async (req, res, next) => {
   try {
     const postId = req.params.postId
@@ -156,7 +156,7 @@ postRouter.post("/:postId/comments", async (req, res, next) => {
   }
 })
 
-// -----------------------------------GET--------------------------------------
+// -----------------------------------GET ALL COMMENT--------------------------------------
 postRouter.get("/:postId/comments", async (req, res, next) => {
   try {
     const postId = req.params.postId
@@ -171,18 +171,63 @@ postRouter.get("/:postId/comments", async (req, res, next) => {
   }
 })
 
-// -----------------------------------GET--------------------------------------
+// -----------------------------------GET 1 COMMENT--------------------------------------
 postRouter.get("/:postId/comments/:commentId", async (req, res, next) => {
   try {
     const postId = req.params.postId
     const reqPost = await PostsModel.findById(postId)
     if (reqPost) {
-      const reqComment = reqPost.comments.find(comment => comment.id.toString() === req.params.commentId)
+      const reqComment = reqPost.comments.find(comment => comment._id.toString() === req.params.commentId)
      if(reqComment){
       res.send(reqComment)
      } else {
-       next(createHttpError(404, `comment  WITH ID:- ${req.params.commentId} CANNOT UPDATED  !!`))
+       next(createHttpError(404, `comment  WITH ID:- ${req.params.commentId} NOT FOUND  !!`))
      }
+    } else {
+      next(createHttpError(404, `POST  WITH ID:- ${postId} CANNOT UPDATED  !!`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
+// -----------------------------------EDIT COMMENT--------------------------------------
+postRouter.put("/:postId/comments/:commentId", async (req, res, next) => {
+  try {
+    const postId = req.params.postId
+    const reqPost = await PostsModel.findById(postId)
+    if (reqPost) {
+      const index =  reqPost.comments.findIndex(comment => comment._id.toString() === req.params.commentId)
+      if(index !== -1){
+         reqPost.comments[index] = {
+           ...reqPost.comments[index].toObject(),
+           ...req.body
+         }
+         await reqPost.save()
+        res.send(reqPost.comments[index])
+      } else{
+        next(createHttpError(404, `COMMENt  WITH ID:- ${req.params.commentId} CANNOT UPDATED  !!`))
+      }
+    } else {
+      next(createHttpError(404, `POST  WITH ID:- ${postId} CANNOT UPDATED  !!`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
+// -----------------------------------DELETE COMMENT--------------------------------------
+postRouter.delete("/:postId/comments/:commentId", async (req, res, next) => {
+  try {
+    const postId = req.params.postId
+    const reqPost = await PostsModel.findById(postId)
+    if (reqPost) {
+      const updatedPost =  await PostsModel.findByIdAndUpdate(
+        postId,
+        {$pull :{comments:{_id:req.params.commentId}}},
+        {new : true}
+      )
+      res.send(updatedPost)
     } else {
       next(createHttpError(404, `POST  WITH ID:- ${postId} CANNOT UPDATED  !!`))
     }
@@ -194,7 +239,7 @@ postRouter.get("/:postId/comments/:commentId", async (req, res, next) => {
 
 // ******************************************* ROUTE FOR likes *******************************************
 
-// -----------------------------------PUT--------------------------------------
+// ----------------------------------- LIKE DISLIKE--------------------------------------
 postRouter.post("/:postId/likes", async (req, res, next) => {
   try {
     const postId = req.params.postId
