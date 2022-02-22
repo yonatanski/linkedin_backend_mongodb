@@ -17,7 +17,7 @@ server.use(express.json())
 // ************************************* ROUTES ********************************************
 server.use("/posts", postRouter)
 
-server.use("/profiles", profilesRouter)
+server.use("/profiles", profilesRouter);
 // ************************************** ERROR HANDLERS ***********************************
 server.use(badRequestHandler)
 server.use(unauthorizedHandler)

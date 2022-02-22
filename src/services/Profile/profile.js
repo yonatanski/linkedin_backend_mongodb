@@ -10,6 +10,7 @@ import { profile } from "console";
 import { getPDFReadableStream } from "../file/pdfMaker.js";
 
 
+
 const profilesRouter = Router()
 
 
@@ -188,45 +189,30 @@ profilesRouter.get("/:profileId/experiences", async(req, res, next) => {
 
 /************************* (csv) create a csv file of experiences ************************/
 profilesRouter.get("/:profileId/experiences/csv", async(req, res, next) => {
-    try {
-        const stream = ProfileModel.find().stream();
-        stream.on('data', function(doc) {
-            console.log(doc);
-        });
-        stream.on('error', function(err) {
-            console.log(err);
-        });
-        stream.on('end', function() {
-            console.log('All done!');
-        });
-
-        // res.setHeader("Content-Disposition","attachment; filename = experiences.csv")
-/*Products.findById(id).then(res => {
-    const jsonRes = res.toJSON();
-    // Here jsonRes is JSON
-})*/ 
-//     console.log("i am loging")
-//         const stream = await ProfileModel.findById(req.params.profileId).stream()
-//         stream.on('data', function(doc) {
-            
-//             console.log(doc);
-//         });
-//         stream.on('error', function(err) {
-//             console.log(err);
-            
-//         });
-//         stream.on('end', function() {
-//             console.log('All done!');
-// });
-        
-//         const destination = res
-//         pipeline(source, transform, destination, err => {
-//             if(err) next(err)
-//         })
+    try {  
+        let profile = await ProfileModel.findById(req.params.profileId)
+        let experiences = JSON.parse(JSON.stringify(profile.experiences))
+        const csvFields = ["id",
+        "role",
+        "company",
+        "startDate",
+        "endDate",
+        "description",
+        "area",
+        "username",
+        "createdAt",
+        "updatedAt",]
+       
+        const json2csvParser = json2csv.Parser
+        const json2csvP = new json2csvParser({csvFields})
+        const csvData = json2csvP.parse(experiences)
+        res.setHeader("Content-disposition", "attachment; filename=experiences.csv")
+        res.set("Content-type", "text/csv")
+        res.status(200).end(csvData)
     } catch (error) {
         next(error)
     }
-})
+    })
 
 /************************* (get) get specific experience of a specific user ************************/
 profilesRouter.get("/:profileId/experiences/:experienceId", async(req, res, next) => {

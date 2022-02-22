@@ -23,12 +23,17 @@ const cloudinaryUploaderImageUrl = multer({
 // ************************************* ROUTERS *************************************
 
 // -----------------------------------POST--------------------------------------
-postRouter.post("/", newBookValidation, async (req, res, next) => {
+postRouter.post("/", async (req, res, next) => {
+  let defPost  =      {
+    "text": "This is default text from post BE -->> mongo db is easier to understand than postgres",
+    "image":"https://media.istockphoto.com/photos/yellow-vintage-tram-on-the-street-in-lisbon-portugal-picture-id1221460597?s=612x612", 
+    "user":"6214fc2844fe9da6dc2d643f"
+}
   try {
     const errorsList = validationResult(req)
     if (errorsList.isEmpty()) {
       console.log(req.body)
-      const newPost = new PostsModel(req.body)
+      const newPost = new PostsModel({...defPost, ...req.body})
       const { _id } = await newPost.save()
       res.status(201).send({ _id })
     } else {
@@ -41,7 +46,10 @@ postRouter.post("/", newBookValidation, async (req, res, next) => {
 // -----------------------------------GET--------------------------------------
 postRouter.get("/", async (req, res, next) => {
   try {
-    const getPosts = await PostsModel.find({})
+    const getPosts = await PostsModel.find({}).populate({
+      path: "user",
+      select: "name surname image bio",
+    })
     if (getPosts) {
       res.send(getPosts)
     } else {
@@ -58,7 +66,7 @@ postRouter.get("/:postId", async (req, res, next) => {
     const getPosts = await PostsModel.findById(postId).populate({
       path: "user",
       select: "name surname image bio",
-    })
+    }).populate({path:"comments"})
     if (getPosts) {
       res.send(getPosts)
     } else {
@@ -122,4 +130,64 @@ postRouter.post("/:postId/uploadPostImg", cloudinaryUploaderImageUrl, async (req
   }
 })
 
+
+
+// ******************************************* ROUTE FOR COMMENT *******************************************
+
+// -----------------------------------PUT--------------------------------------
+postRouter.post("/:postId/comments", async (req, res, next) => {
+  try {
+    const postId = req.params.postId
+    const reqPost = await PostsModel.findById(postId)
+    if (reqPost) {
+      const newComment = {...req.body}
+      console.log(newComment)
+      const updatedPost = await PostsModel.findByIdAndUpdate(
+      postId, 
+      {$push : {comments : newComment}},
+       {new : true}
+    )
+      res.status(201).send(updatedPost)
+    } else {
+      next(createHttpError(404, `POST  WITH ID:- ${postId} CANNOT UPDATED  !!`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
+// -----------------------------------GET--------------------------------------
+postRouter.get("/:postId/comments", async (req, res, next) => {
+  try {
+    const postId = req.params.postId
+    const reqPost = await PostsModel.findById(postId)
+    if (reqPost) {
+      res.send(reqPost.comments)
+    } else {
+      next(createHttpError(404, `POST  WITH ID:- ${postId} CANNOT UPDATED  !!`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
+// -----------------------------------GET--------------------------------------
+postRouter.get("/:postId/comments/:commentId", async (req, res, next) => {
+  try {
+    const postId = req.params.postId
+    const reqPost = await PostsModel.findById(postId)
+    if (reqPost) {
+      const reqComment = reqPost.comments.find(comment => comment.id.toString() === req.params.commentId)
+     if(reqComment){
+      res.send(reqComment)
+     } else {
+       next(createHttpError(404, `comment  WITH ID:- ${req.params.commentId} CANNOT UPDATED  !!`))
+     }
+    } else {
+      next(createHttpError(404, `POST  WITH ID:- ${postId} CANNOT UPDATED  !!`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
 export default postRouter

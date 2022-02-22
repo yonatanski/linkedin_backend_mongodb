@@ -2,12 +2,23 @@ import mongoose from "mongoose"
 
 const { Schema, model } = mongoose
 
+const commentsSchema = new Schema({
+    user : { type: Schema.Types.ObjectId, ref: "Profile" },
+    comment:  { type: String, required:true },
+}, {
+  timestamps: true,
+})
+
 const postSchema = new Schema(
   {
     text: { type: String },
-    username: { type: String },
+    // username: { type: String },
     image: { type: String },
     user: { type: Schema.Types.ObjectId, ref: "Profile" },
+    like :[{ type: Schema.Types.ObjectId, ref: "Profile" }],
+    comments:[
+    commentsSchema
+      ]
   },
   {
     timestamps: true,
