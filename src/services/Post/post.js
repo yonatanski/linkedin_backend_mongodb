@@ -132,7 +132,7 @@ postRouter.post("/:postId/uploadPostImg", cloudinaryUploaderImageUrl, async (req
 
 
 
-// ******************************************* ROUTE FOR COMMENT *******************************************
+// ******************************************* ROUTE FOR COMMENTS *******************************************
 
 // -----------------------------------PUT--------------------------------------
 postRouter.post("/:postId/comments", async (req, res, next) => {
@@ -190,4 +190,54 @@ postRouter.get("/:postId/comments/:commentId", async (req, res, next) => {
     next(error)
   }
 })
+
+
+// ******************************************* ROUTE FOR likes *******************************************
+
+// -----------------------------------PUT--------------------------------------
+postRouter.post("/:postId/likes", async (req, res, next) => {
+  try {
+    const postId = req.params.postId
+    const reqPost = await PostsModel.findById(postId)
+    if (reqPost) {
+      const isAlreadyLiked = reqPost.likes.find(id => id.toString() === req.body.user)
+      if(!isAlreadyLiked){
+        const updatedPost = await PostsModel.findByIdAndUpdate(
+        postId, 
+        {$push : {likes : req.body.user}},
+        {new : true}
+      )
+      res.status(201).send(updatedPost)
+      } else{
+        const updatedPost = await PostsModel.findByIdAndUpdate(
+          postId, 
+          {$pull : {likes : req.body.user}},
+          {new : true}
+        )
+        res.status(201).send(updatedPost)
+      }
+    } else {
+      next(createHttpError(404, `POST  WITH ID:- ${postId} CANNOT UPDATED  !!`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
+// -----------------------------------GET--------------------------------------
+postRouter.get("/:postId/likes", async (req, res, next) => {
+  try {
+    const postId = req.params.postId
+    const reqPost = await PostsModel.findById(postId)
+    if (reqPost) {
+      res.send(reqPost.likes)
+    } else {
+      next(createHttpError(404, `POST  WITH ID:- ${postId} CANNOT UPDATED  !!`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
+
 export default postRouter

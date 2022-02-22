@@ -15,7 +15,7 @@ const postSchema = new Schema(
     // username: { type: String },
     image: { type: String },
     user: { type: Schema.Types.ObjectId, ref: "Profile" },
-    like :[{ type: Schema.Types.ObjectId, ref: "Profile" }],
+    likes :[{ type: Schema.Types.ObjectId, ref: "Profile" }],
     comments:[
     commentsSchema
       ]
