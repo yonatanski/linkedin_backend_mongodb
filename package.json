@@ -38,6 +38,8 @@
     "query-to-mongo": "^0.10.1",
     "stream": "^0.0.2",
     "striptags": "^3.2.0",
-    "zlib": "^1.0.5"
+    "zlib": "^1.0.5",
+    "express-validator": "^6.14.0",
+    "http-errors": "^2.0.0"
   }
 }
