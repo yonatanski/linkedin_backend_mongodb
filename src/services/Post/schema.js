@@ -5,6 +5,7 @@ const { Schema, model } = mongoose
 const commentsSchema = new Schema({
     user : { type: Schema.Types.ObjectId, ref: "Profile" },
     comment:  { type: String, required:true },
+    post: {type:String}
 }, {
   timestamps: true,
 })
@@ -34,6 +35,8 @@ postSchema.static("findPostWithProfile", async function (mongoQuery) {
     .populate({
       path: "user",
       select: "",
+    }).populate({
+      path: "likes"
     })
   return { total, post }
 })
