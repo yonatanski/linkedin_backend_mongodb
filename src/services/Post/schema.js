@@ -27,7 +27,7 @@ const postSchema = new Schema(
 
 postSchema.static("findPostWithProfile", async function (mongoQuery) {
   const total = await this.countDocuments(mongoQuery.criteria) // If I use a normal function (not an arrow) here, the "this" keyword will give me the possibility to access to BooksModel
-  const Post = await this.find(mongoQuery.criteria)
+  const post = await this.find(mongoQuery.criteria)
     .limit(mongoQuery.options.limit)
     .skip(mongoQuery.options.skip)
     .sort(mongoQuery.options.sort) // no matter in which order you call this options, Mongo will ALWAYS do SORT, SKIP, LIMIT in this order
@@ -35,7 +35,7 @@ postSchema.static("findPostWithProfile", async function (mongoQuery) {
       path: "user",
       select: "",
     })
-  return { total, Post }
+  return { total, post }
 })
 
 export default model("Post", postSchema)
