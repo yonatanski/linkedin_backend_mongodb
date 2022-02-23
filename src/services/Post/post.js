@@ -139,7 +139,7 @@ postRouter.post("/:postId/comments", async (req, res, next) => {
     const postId = req.params.postId
     const reqPost = await PostsModel.findById(postId)
     if (reqPost) {
-      const newComment = {...req.body}
+      const newComment = {...req.body,post:postId}
       console.log(newComment)
       const updatedPost = await PostsModel.findByIdAndUpdate(
       postId, 
