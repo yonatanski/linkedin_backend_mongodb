@@ -8,7 +8,7 @@ import { validationResult } from "express-validator"
 import { newBookValidation } from "./validation.js"
 import PostsModel from "./schema.js"
 import ProfileModel from "../Profile/profile-model.js"
-
+import CommentModel from "../Comment/comment-model.js"
 const postRouter = express.Router()
 
 const cloudinaryUploaderImageUrl = multer({
@@ -133,11 +133,11 @@ postRouter.post("/:postId/uploadPostImg", cloudinaryUploaderImageUrl, async (req
 
 // ******************************************* ROUTE FOR COMMENTS *******************************************
 
-// -----------------------------------PUT COMMENT--------------------------------------
+// -----------------------------------POST COMMENT--------------------------------------
 postRouter.post("/:postId/comments", async (req, res, next) => {
   try {
     const postId = req.params.postId
-    const reqPost = await PostsModel.findById(postId)
+    const reqPost = await CommentModal.findById(postId)
     if (reqPost) {
       const newComment = {...req.body,post:postId}
       console.log(newComment)
@@ -159,7 +159,7 @@ postRouter.post("/:postId/comments", async (req, res, next) => {
 postRouter.get("/:postId/comments", async (req, res, next) => {
   try {
     const postId = req.params.postId
-    const reqPost = await PostsModel.findById(postId)
+    const reqPost = await CommentModel.findById(postId)
     if (reqPost) {
       res.send(reqPost.comments)
     } else {
@@ -174,7 +174,7 @@ postRouter.get("/:postId/comments", async (req, res, next) => {
 postRouter.get("/:postId/comments/:commentId", async (req, res, next) => {
   try {
     const postId = req.params.postId
-    const reqPost = await PostsModel.findById(postId)
+    const reqPost = await CommentModel.findById(postId)
     if (reqPost) {
       const reqComment = reqPost.comments.find(comment => comment._id.toString() === req.params.commentId)
      if(reqComment){
@@ -194,7 +194,7 @@ postRouter.get("/:postId/comments/:commentId", async (req, res, next) => {
 postRouter.put("/:postId/comments/:commentId", async (req, res, next) => {
   try {
     const postId = req.params.postId
-    const reqPost = await PostsModel.findById(postId)
+    const reqPost = await CommentModel.findById(postId)
     if (reqPost) {
       const index =  reqPost.comments.findIndex(comment => comment._id.toString() === req.params.commentId)
       if(index !== -1){
@@ -219,7 +219,7 @@ postRouter.put("/:postId/comments/:commentId", async (req, res, next) => {
 postRouter.delete("/:postId/comments/:commentId", async (req, res, next) => {
   try {
     const postId = req.params.postId
-    const reqPost = await PostsModel.findById(postId)
+    const reqPost = await CommentModel.findById(postId)
     if (reqPost) {
       const updatedPost =  await PostsModel.findByIdAndUpdate(
         postId,
