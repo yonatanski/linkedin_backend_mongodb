@@ -158,7 +158,7 @@ postRouter.post("/:postId/comments", async (req, res, next) => {
 postRouter.get("/:postId/comments", async (req, res, next) => {
   try {
     const postId = req.params.postId
-    const reqPost = await CommentModel.findOne({ post: postId }).populate({
+    const reqPost = await CommentModel.find({ post: postId }).populate({
       path: "user",
       select: "name surname image",
     })
@@ -176,14 +176,9 @@ postRouter.get("/:postId/comments", async (req, res, next) => {
 postRouter.get("/:postId/comments/:commentId", async (req, res, next) => {
   try {
     const postId = req.params.postId
-    const reqPost = await CommentModel.findById(postId)
-    if (reqPost) {
-      const reqComment = reqPost.comments.find((comment) => comment._id.toString() === req.params.commentId)
-      if (reqComment) {
+    const reqComment = await CommentModel.findOne({_id:req.params.commentId})
+    if (reqComment) {
         res.send(reqComment)
-      } else {
-        next(createHttpError(404, `comment  WITH ID:- ${req.params.commentId} NOT FOUND  !!`))
-      }
     } else {
       next(createHttpError(404, `POST  WITH ID:- ${postId} CANNOT UPDATED  !!`))
     }
@@ -195,23 +190,16 @@ postRouter.get("/:postId/comments/:commentId", async (req, res, next) => {
 // -----------------------------------EDIT COMMENT--------------------------------------
 postRouter.put("/:postId/comments/:commentId", async (req, res, next) => {
   try {
-    const postId = req.params.postId
-    const reqPost = await CommentModel.findById(postId)
-    if (reqPost) {
-      const index = reqPost.comments.findIndex((comment) => comment._id.toString() === req.params.commentId)
-      if (index !== -1) {
-        reqPost.comments[index] = {
-          ...reqPost.comments[index].toObject(),
-          ...req.body,
-        }
-        await reqPost.save()
-        res.send(reqPost.comments[index])
+   const upDatedComment = await CommentModel.findByIdAndUpdate(
+     req.params.commentId, 
+     req.body,
+     {new:true}
+     )
+    if(upDatedComment){
+      res.send(upDatedComment)
       } else {
         next(createHttpError(404, `COMMENt  WITH ID:- ${req.params.commentId} CANNOT UPDATED  !!`))
       }
-    } else {
-      next(createHttpError(404, `POST  WITH ID:- ${postId} CANNOT UPDATED  !!`))
-    }
   } catch (error) {
     next(error)
   }
@@ -220,11 +208,11 @@ postRouter.put("/:postId/comments/:commentId", async (req, res, next) => {
 // -----------------------------------DELETE COMMENT--------------------------------------
 postRouter.delete("/:postId/comments/:commentId", async (req, res, next) => {
   try {
-    const postId = req.params.postId
-    const reqPost = await CommentModel.findById(postId)
-    if (reqPost) {
-      const updatedPost = await PostsModel.findByIdAndUpdate(postId, { $pull: { comments: { _id: req.params.commentId } } }, { new: true })
-      res.send(updatedPost)
+    
+    const reqComment = await CommentModel.findById(req.params.commentId)
+    if (reqComment) {
+      await CommentModel.findByIdAndDelete(req.params.commentId)
+      res.send()
     } else {
       next(createHttpError(404, `POST  WITH ID:- ${postId} CANNOT UPDATED  !!`))
     }
