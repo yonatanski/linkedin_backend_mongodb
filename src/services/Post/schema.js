@@ -2,13 +2,13 @@ import mongoose from "mongoose"
 
 const { Schema, model } = mongoose
 
-const commentsSchema = new Schema({
-    user : { type: Schema.Types.ObjectId, ref: "Profile" },
-    comment:  { type: String, required:true },
-    post: {type:String}
-}, {
-  timestamps: true,
-})
+// const commentsSchema = new Schema({
+//     user : { type: Schema.Types.ObjectId, ref: "Profile" },
+//     comment:  { type: String, required:true },
+//     post: {type:String}
+// }, {
+//   timestamps: true,
+// })
 
 const postSchema = new Schema(
   {
@@ -16,10 +16,8 @@ const postSchema = new Schema(
     // username: { type: String },
     image: { type: String },
     user: { type: Schema.Types.ObjectId, ref: "Profile" },
-    likes :[{ type: Schema.Types.ObjectId, ref: "Profile" }],
-    comments:[
-    commentsSchema
-      ]
+    likes: [{ type: Schema.Types.ObjectId, ref: "Profile" }],
+    comments: { type: Schema.Types.ObjectId, ref: "Comment" },
   },
   {
     timestamps: true,
@@ -35,8 +33,9 @@ postSchema.static("findPostWithProfile", async function (mongoQuery) {
     .populate({
       path: "user",
       select: "",
-    }).populate({
-      path: "likes"
+    })
+    .populate({
+      path: "likes",
     })
   return { total, post }
 })

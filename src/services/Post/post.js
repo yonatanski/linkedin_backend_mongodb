@@ -24,16 +24,16 @@ const cloudinaryUploaderImageUrl = multer({
 
 // -----------------------------------POST--------------------------------------
 postRouter.post("/", async (req, res, next) => {
-  let defPost  =      {
-    "text": "This is default text from post BE -->> mongo db is easier to understand than postgres",
-    "image":"https://media.istockphoto.com/photos/yellow-vintage-tram-on-the-street-in-lisbon-portugal-picture-id1221460597?s=612x612", 
-    "user":"6214fc2844fe9da6dc2d643f"
-}
+  let defPost = {
+    text: "This is default text from post BE -->> mongo db is easier to understand than postgres",
+    image: "https://media.istockphoto.com/photos/yellow-vintage-tram-on-the-street-in-lisbon-portugal-picture-id1221460597?s=612x612",
+    user: "6214fc2844fe9da6dc2d643f",
+  }
   try {
     const errorsList = validationResult(req)
     if (errorsList.isEmpty()) {
       console.log(req.body)
-      const newPost = new PostsModel({...defPost, ...req.body})
+      const newPost = new PostsModel({ ...defPost, ...req.body })
       const { _id } = await newPost.save()
       res.status(201).send({ _id })
     } else {
@@ -46,11 +46,11 @@ postRouter.post("/", async (req, res, next) => {
 // -----------------------------------GET--------------------------------------
 postRouter.get("/", async (req, res, next) => {
   try {
-    const mongoQuery= q2m(req.query)
-    const {total,post} = await PostsModel.findPostWithProfile(mongoQuery)
+    const mongoQuery = q2m(req.query)
+    const { total, post } = await PostsModel.findPostWithProfile(mongoQuery)
     if (true) {
       console.log("h")
-      res.send({total:total, post:post})
+      res.send({ total: total, post: post })
     } else {
       next(createHttpError(404, `REQUEST NOT FOUND !!`))
     }
@@ -62,10 +62,12 @@ postRouter.get("/", async (req, res, next) => {
 postRouter.get("/:postId", async (req, res, next) => {
   try {
     const postId = req.params.postId
-    const getPosts = await PostsModel.findById(postId).populate({
-      path: "user",
-      select: "name surname image bio",
-    }).populate({path:"comments"})
+    const getPosts = await PostsModel.findById(postId)
+      .populate({
+        path: "user",
+        select: "name surname image bio",
+      })
+      .populate({ path: "comments" })
     if (getPosts) {
       res.send(getPosts)
     } else {
@@ -129,27 +131,24 @@ postRouter.post("/:postId/uploadPostImg", cloudinaryUploaderImageUrl, async (req
   }
 })
 
-
-
 // ******************************************* ROUTE FOR COMMENTS *******************************************
 
 // -----------------------------------POST COMMENT--------------------------------------
 postRouter.post("/:postId/comments", async (req, res, next) => {
   try {
     const postId = req.params.postId
-    const reqPost = await CommentModal.findById(postId)
-    if (reqPost) {
-      const newComment = {...req.body,post:postId}
-      console.log(newComment)
-      const updatedPost = await PostsModel.findByIdAndUpdate(
-      postId, 
-      {$push : {comments : newComment}},
-       {new : true}
-    )
-      res.status(201).send(updatedPost)
-    } else {
-      next(createHttpError(404, `POST  WITH ID:- ${postId} CANNOT UPDATED  !!`))
-    }
+    // const reqPost = await CommentModel.findById(postId)
+    const newComment = new CommentModel({ ...req.body, post: postId })
+    const { _id } = await newComment.save()
+    res.status(201).send({ _id })
+    // if (reqPost) {
+    //   const newComment = { ...req.body, post: postId }
+    //   console.log(newComment)
+    //   const updatedPost = await PostsModel.findByIdAndUpdate(postId, { $push: { comments: newComment } }, { new: true })
+    //   res.status(201).send(updatedPost)
+    // } else {
+    //   next(createHttpError(404, `POST  WITH ID:- ${postId} CANNOT UPDATED  !!`))
+    // }
   } catch (error) {
     next(error)
   }
@@ -159,9 +158,12 @@ postRouter.post("/:postId/comments", async (req, res, next) => {
 postRouter.get("/:postId/comments", async (req, res, next) => {
   try {
     const postId = req.params.postId
-    const reqPost = await CommentModel.findById(postId)
+    const reqPost = await CommentModel.findOne({ post: postId }).populate({
+      path: "user",
+      select: "name surname image",
+    })
     if (reqPost) {
-      res.send(reqPost.comments)
+      res.send(reqPost)
     } else {
       next(createHttpError(404, `POST  WITH ID:- ${postId} CANNOT UPDATED  !!`))
     }
@@ -176,12 +178,12 @@ postRouter.get("/:postId/comments/:commentId", async (req, res, next) => {
     const postId = req.params.postId
     const reqPost = await CommentModel.findById(postId)
     if (reqPost) {
-      const reqComment = reqPost.comments.find(comment => comment._id.toString() === req.params.commentId)
-     if(reqComment){
-      res.send(reqComment)
-     } else {
-       next(createHttpError(404, `comment  WITH ID:- ${req.params.commentId} NOT FOUND  !!`))
-     }
+      const reqComment = reqPost.comments.find((comment) => comment._id.toString() === req.params.commentId)
+      if (reqComment) {
+        res.send(reqComment)
+      } else {
+        next(createHttpError(404, `comment  WITH ID:- ${req.params.commentId} NOT FOUND  !!`))
+      }
     } else {
       next(createHttpError(404, `POST  WITH ID:- ${postId} CANNOT UPDATED  !!`))
     }
@@ -196,15 +198,15 @@ postRouter.put("/:postId/comments/:commentId", async (req, res, next) => {
     const postId = req.params.postId
     const reqPost = await CommentModel.findById(postId)
     if (reqPost) {
-      const index =  reqPost.comments.findIndex(comment => comment._id.toString() === req.params.commentId)
-      if(index !== -1){
-         reqPost.comments[index] = {
-           ...reqPost.comments[index].toObject(),
-           ...req.body
-         }
-         await reqPost.save()
+      const index = reqPost.comments.findIndex((comment) => comment._id.toString() === req.params.commentId)
+      if (index !== -1) {
+        reqPost.comments[index] = {
+          ...reqPost.comments[index].toObject(),
+          ...req.body,
+        }
+        await reqPost.save()
         res.send(reqPost.comments[index])
-      } else{
+      } else {
         next(createHttpError(404, `COMMENt  WITH ID:- ${req.params.commentId} CANNOT UPDATED  !!`))
       }
     } else {
@@ -221,11 +223,7 @@ postRouter.delete("/:postId/comments/:commentId", async (req, res, next) => {
     const postId = req.params.postId
     const reqPost = await CommentModel.findById(postId)
     if (reqPost) {
-      const updatedPost =  await PostsModel.findByIdAndUpdate(
-        postId,
-        {$pull :{comments:{_id:req.params.commentId}}},
-        {new : true}
-      )
+      const updatedPost = await PostsModel.findByIdAndUpdate(postId, { $pull: { comments: { _id: req.params.commentId } } }, { new: true })
       res.send(updatedPost)
     } else {
       next(createHttpError(404, `POST  WITH ID:- ${postId} CANNOT UPDATED  !!`))
@@ -235,7 +233,6 @@ postRouter.delete("/:postId/comments/:commentId", async (req, res, next) => {
   }
 })
 
-
 // ******************************************* ROUTE FOR likes *******************************************
 
 // ----------------------------------- LIKE DISLIKE--------------------------------------
@@ -244,20 +241,12 @@ postRouter.post("/:postId/likes", async (req, res, next) => {
     const postId = req.params.postId
     const reqPost = await PostsModel.findById(postId)
     if (reqPost) {
-      const isAlreadyLiked = reqPost.likes.find(id => id.toString() === req.body.user)
-      if(!isAlreadyLiked){
-        const updatedPost = await PostsModel.findByIdAndUpdate(
-        postId, 
-        {$push : {likes : req.body.user}},
-        {new : true}
-      )
-      res.status(201).send(updatedPost)
-      } else{
-        const updatedPost = await PostsModel.findByIdAndUpdate(
-          postId, 
-          {$pull : {likes : req.body.user}},
-          {new : true}
-        )
+      const isAlreadyLiked = reqPost.likes.find((id) => id.toString() === req.body.user)
+      if (!isAlreadyLiked) {
+        const updatedPost = await PostsModel.findByIdAndUpdate(postId, { $push: { likes: req.body.user } }, { new: true })
+        res.status(201).send(updatedPost)
+      } else {
+        const updatedPost = await PostsModel.findByIdAndUpdate(postId, { $pull: { likes: req.body.user } }, { new: true })
         res.status(201).send(updatedPost)
       }
     } else {
@@ -282,6 +271,5 @@ postRouter.get("/:postId/likes", async (req, res, next) => {
     next(error)
   }
 })
-
 
 export default postRouter

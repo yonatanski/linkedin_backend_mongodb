@@ -1,7 +1,7 @@
 import PdfPrinter from "pdfmake"
 import striptags from "striptags"
-// import axios from "axios"
-// // import { format, compareAsc } from 'date-fns'
+import axios from "axios"
+import { format, compareAsc } from "date-fns"
 
 export const getPDFReadableStream = async (profile) => {
   const fonts = {
