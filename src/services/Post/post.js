@@ -49,7 +49,6 @@ postRouter.get("/", async (req, res, next) => {
     const mongoQuery = q2m(req.query)
     const { total, post } = await PostsModel.findPostWithProfile(mongoQuery)
     if (true) {
-      console.log("h")
       res.send({ total: total, post: post })
     } else {
       next(createHttpError(404, `REQUEST NOT FOUND !!`))

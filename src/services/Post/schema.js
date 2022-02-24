@@ -28,7 +28,7 @@ postSchema.static("findPostWithProfile", async function (mongoQuery) {
     })
     .populate({
       path: "likes",
-      select: "name image bio",
+      select: "name surname image bio",
     })
   return { total, post }
 })
