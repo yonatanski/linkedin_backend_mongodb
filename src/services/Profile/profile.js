@@ -5,7 +5,7 @@ import {v2 as cloudinary} from 'cloudinary'
 import {CloudinaryStorage} from 'multer-storage-cloudinary'
 import multer from "multer";
 import { pipeline } from "stream";
-import json2csv from 'json2csv'
+import json2csv, {Transform} from 'json2csv'
 import { getPDFReadableStream } from "../file/pdfMaker.js";
 
 
@@ -68,7 +68,7 @@ profilesRouter.get("/:profileId/downloadPdf",async(req,res,next)=>{
             pdfStream.pipe(res);
             pdfStream.end();
         }
-        res.setHeader("Content-Disposition","attachment=resume.pdf")
+        res.setHeader("Content-Disposition","attachment; filename = resume.pdf")
         const source = getPDFReadableStream(profile)
         const destination = res
         pipeline(source,destination, err => {
@@ -209,6 +209,10 @@ profilesRouter.get("/:profileId/experiences/csv", async(req, res, next) => {
         res.setHeader("Content-disposition", `attachment; filename=exp${req.params.profileId}.csv`)
         res.set("Content-type", "text/csv")
         res.status(200).end(csvData)
+
+        pipeline(readablestream, csvData, res, err => {
+            if (err) next(err)
+          }) 
     } catch (error) {
         next(error)
     }
