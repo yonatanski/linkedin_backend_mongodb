@@ -31,7 +31,7 @@ server.use(unauthorizedHandler)
 server.use(notFoundHandler)
 server.use(genericErrorHandler)
 const uri = process.env.MONGODB_URI
-mongoose.connect(uri)
+mongoose.connect(uri || process.env.MONGO_CONNECTION)
 
 mongoose.connection.on("connected", () => {
   console.log("Successfully connected to Mongo!")
