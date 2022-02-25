@@ -15,10 +15,10 @@ const cloudinaryUploaderImageUrl = multer({
   storage: new CloudinaryStorage({
     cloudinary, // search automatically for process.env.CLOUDINARY_URL
     params: {
-      folder: "Linkiden",
+      folder: "linkedin",
     },
   }),
-}).single("PostImage")
+}).single("image")
 
 // ************************************* ROUTERS *************************************
 
@@ -167,9 +167,9 @@ postRouter.get("/:postId/comments", async (req, res, next) => {
 postRouter.get("/:postId/comments/:commentId", async (req, res, next) => {
   try {
     const postId = req.params.postId
-    const reqComment = await CommentModel.findOne({_id:req.params.commentId})
+    const reqComment = await CommentModel.findOne({ _id: req.params.commentId })
     if (reqComment) {
-        res.send(reqComment)
+      res.send(reqComment)
     } else {
       next(createHttpError(404, `POST  WITH ID:- ${postId} CANNOT UPDATED  !!`))
     }
@@ -181,16 +181,12 @@ postRouter.get("/:postId/comments/:commentId", async (req, res, next) => {
 // -----------------------------------EDIT COMMENT--------------------------------------
 postRouter.put("/:postId/comments/:commentId", async (req, res, next) => {
   try {
-   const upDatedComment = await CommentModel.findByIdAndUpdate(
-     req.params.commentId, 
-     req.body,
-     {new:true}
-     )
-    if(upDatedComment){
+    const upDatedComment = await CommentModel.findByIdAndUpdate(req.params.commentId, req.body, { new: true })
+    if (upDatedComment) {
       res.send(upDatedComment)
-      } else {
-        next(createHttpError(404, `COMMENt  WITH ID:- ${req.params.commentId} CANNOT UPDATED  !!`))
-      }
+    } else {
+      next(createHttpError(404, `COMMENt  WITH ID:- ${req.params.commentId} CANNOT UPDATED  !!`))
+    }
   } catch (error) {
     next(error)
   }
@@ -199,7 +195,6 @@ postRouter.put("/:postId/comments/:commentId", async (req, res, next) => {
 // -----------------------------------DELETE COMMENT--------------------------------------
 postRouter.delete("/:postId/comments/:commentId", async (req, res, next) => {
   try {
-    
     const reqComment = await CommentModel.findById(req.params.commentId)
     if (reqComment) {
       await CommentModel.findByIdAndDelete(req.params.commentId)
