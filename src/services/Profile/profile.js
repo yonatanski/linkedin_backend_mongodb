@@ -29,7 +29,7 @@ const cloudinaryUploader = multer({
 /************************* (post) create a profile ************************/
 profilesRouter.post("/", async(req, res, next) => {
     try {
-
+        console.log(req.body)
         const newProfile = new ProfileModel({...req.body, image:"https://www.unfe.org/wp-content/uploads/2019/04/SM-placeholder.png"})
         const {_id} = await newProfile.save()
         res.status(201).send({_id : _id})        
