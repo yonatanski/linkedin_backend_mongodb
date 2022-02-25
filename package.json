@@ -14,7 +14,8 @@
     "url": "git+https://github.com/yonatanski/linkedin_backend_mongodb.git"
   },
   "engines": {
-    "node": ">=12"
+    "node": "> or < =14.17.4",
+    "npm": " > or < =6.14.14"
   },
   "keywords": [],
   "author": "",
