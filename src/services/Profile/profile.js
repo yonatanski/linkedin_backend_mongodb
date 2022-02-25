@@ -6,7 +6,6 @@ import {CloudinaryStorage} from 'multer-storage-cloudinary'
 import multer from "multer";
 import { pipeline } from "stream";
 import json2csv from 'json2csv'
-import { profile } from "console";
 import { getPDFReadableStream } from "../file/pdfMaker.js";
 
 
