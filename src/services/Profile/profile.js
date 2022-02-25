@@ -125,6 +125,22 @@ profilesRouter.get("/:profileId", async(req, res, next) => {
     }
 })
 
+
+
+/************************* (get) get a specific profile ************************/
+profilesRouter.get("/me",  async(req, res, next) => {
+    try {
+        const reqProfiles = await ProfileModel.findById(req.params.profileId)
+        if(reqProfiles){
+            res.status(201).send(reqProfiles)        
+        }else{
+            res.status(404).send(`Profile with id ${req.params.profileId} not found`)        
+        }
+    } catch (error) {
+        next(error)
+    }
+})
+
 /************************* (put) edit a profile ************************/
 profilesRouter.put("/:profileId", async(req, res, next) => {
     try {
