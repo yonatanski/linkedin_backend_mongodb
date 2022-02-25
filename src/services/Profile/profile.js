@@ -6,7 +6,6 @@ import {CloudinaryStorage} from 'multer-storage-cloudinary'
 import multer from "multer";
 import { pipeline } from "stream";
 import json2csv from 'json2csv'
-import { profile } from "console";
 import { getPDFReadableStream } from "../file/pdfMaker.js";
 
 
@@ -31,7 +30,7 @@ const cloudinaryUploader = multer({
 profilesRouter.post("/", async(req, res, next) => {
     try {
 
-        const newProfile = new ProfileModel(req.body)
+        const newProfile = new ProfileModel({...req.body, image:"https://www.unfe.org/wp-content/uploads/2019/04/SM-placeholder.png"})
         const {_id} = await newProfile.save()
         res.status(201).send({_id : _id})        
     } catch (error) {
@@ -158,7 +157,7 @@ profilesRouter.post("/:profileId/experiences", async(req, res, next) => {
     try {
         const reqProfile = await ProfileModel.findById(req.params.profileId)
         if(reqProfile){
-            const newExprience = {...req.body}
+            const newExprience = {...req.body,image:"https://www.unfe.org/wp-content/uploads/2019/04/SM-placeholder.png"}
             const updatedProfile = await ProfileModel.findByIdAndUpdate(
                 req.params.profileId,
                 {$push: {experiences : newExprience}},
@@ -190,9 +189,10 @@ profilesRouter.get("/:profileId/experiences", async(req, res, next) => {
 /************************* (csv) create a csv file of experiences ************************/
 profilesRouter.get("/:profileId/experiences/csv", async(req, res, next) => {
     try {  
-        let profile = await ProfileModel.findById(req.params.profileId)
-        let experiences = JSON.parse(JSON.stringify(profile.experiences))
-        const csvFields = ["id",
+        const profile = await ProfileModel.findById(req.params.profileId)
+        const experiences = JSON.parse(JSON.stringify(profile.experiences))
+        const csvFields = [
+        "id",
         "role",
         "company",
         "startDate",
@@ -206,7 +206,7 @@ profilesRouter.get("/:profileId/experiences/csv", async(req, res, next) => {
         const json2csvParser = json2csv.Parser
         const json2csvP = new json2csvParser({csvFields})
         const csvData = json2csvP.parse(experiences)
-        res.setHeader("Content-disposition", "attachment; filename=experiences.csv")
+        res.setHeader("Content-disposition", `attachment; filename=exp${req.params.profileId}.csv`)
         res.set("Content-type", "text/csv")
         res.status(200).end(csvData)
     } catch (error) {
