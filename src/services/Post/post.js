@@ -140,14 +140,6 @@ postRouter.post("/:postId/comments", async (req, res, next) => {
     const newComment = new CommentModel({ ...req.body, post: postId })
     const { _id } = await newComment.save()
     res.status(201).send({ _id })
-    // if (reqPost) {
-    //   const newComment = { ...req.body, post: postId }
-    //   console.log(newComment)
-    //   const updatedPost = await PostsModel.findByIdAndUpdate(postId, { $push: { comments: newComment } }, { new: true })
-    //   res.status(201).send(updatedPost)
-    // } else {
-    //   next(createHttpError(404, `POST  WITH ID:- ${postId} CANNOT UPDATED  !!`))
-    // }
   } catch (error) {
     next(error)
   }

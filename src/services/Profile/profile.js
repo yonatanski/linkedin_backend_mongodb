@@ -30,7 +30,7 @@ const cloudinaryUploader = multer({
 profilesRouter.post("/", async(req, res, next) => {
     try {
 
-        const newProfile = new ProfileModel(req.body)
+        const newProfile = new ProfileModel({...req.body, img:"https://www.unfe.org/wp-content/uploads/2019/04/SM-placeholder.png"})
         const {_id} = await newProfile.save()
         res.status(201).send({_id : _id})        
     } catch (error) {
@@ -157,7 +157,7 @@ profilesRouter.post("/:profileId/experiences", async(req, res, next) => {
     try {
         const reqProfile = await ProfileModel.findById(req.params.profileId)
         if(reqProfile){
-            const newExprience = {...req.body}
+            const newExprience = {...req.body,img:"https://www.unfe.org/wp-content/uploads/2019/04/SM-placeholder.png"}
             const updatedProfile = await ProfileModel.findByIdAndUpdate(
                 req.params.profileId,
                 {$push: {experiences : newExprience}},
