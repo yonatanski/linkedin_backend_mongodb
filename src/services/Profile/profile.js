@@ -189,9 +189,10 @@ profilesRouter.get("/:profileId/experiences", async(req, res, next) => {
 /************************* (csv) create a csv file of experiences ************************/
 profilesRouter.get("/:profileId/experiences/csv", async(req, res, next) => {
     try {  
-        let profile = await ProfileModel.findById(req.params.profileId)
-        let experiences = JSON.parse(JSON.stringify(profile.experiences))
-        const csvFields = ["id",
+        const profile = await ProfileModel.findById(req.params.profileId)
+        const experiences = JSON.parse(JSON.stringify(profile.experiences))
+        const csvFields = [
+        "id",
         "role",
         "company",
         "startDate",
@@ -205,7 +206,7 @@ profilesRouter.get("/:profileId/experiences/csv", async(req, res, next) => {
         const json2csvParser = json2csv.Parser
         const json2csvP = new json2csvParser({csvFields})
         const csvData = json2csvP.parse(experiences)
-        res.setHeader("Content-disposition", "attachment; filename=experiences.csv")
+        res.setHeader("Content-disposition", `attachment; filename=exp${req.params.profileId}.csv`)
         res.set("Content-type", "text/csv")
         res.status(200).end(csvData)
     } catch (error) {
