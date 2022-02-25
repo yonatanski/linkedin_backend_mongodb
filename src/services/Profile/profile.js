@@ -58,8 +58,9 @@ profilesRouter.post("/:profileId/picture", cloudinaryUploader, async(req, res, n
 
 profilesRouter.get("/:profileId/downloadPdf",async(req,res,next)=>{
 
+    const profileId = req.params.profileId
     try {
-        const profile = await ProfileModel.findById(req.params.profileId)
+        const profile = await ProfileModel.findById(profileId)
         if(!profile){
             res.sendStatus(404).send({ message: `profile with ${req.params.profileId} is not found!` })
         } else {
@@ -68,12 +69,12 @@ profilesRouter.get("/:profileId/downloadPdf",async(req,res,next)=>{
             pdfStream.pipe(res);
             pdfStream.end();
         }
-        res.setHeader("Content-Disposition","attachment; filename = resume.pdf")
-        const source = getPDFReadableStream(profile)
-        const destination = res
-        pipeline(source,destination, err => {
-            if(err) next(err)
-        })
+            res.setHeader("Content-Disposition",`attachment; filename = resume${profileId}.pdf`)
+            const source = getPDFReadableStream(profile)
+            const destination = res;
+            pipeline(source,destination, err => {
+                if(err) next(err)
+            })
     } catch (error) {
         next(error)
     }
