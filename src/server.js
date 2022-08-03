@@ -10,7 +10,7 @@ const server = express()
 const port = process.env.PORT || 3001
 
 // ************************************* MIDDLEWARES ***************************************.
-const whiteListOrigins = [process.env.PROD_FE_URL]
+const whiteListOrigins = [process.env.PROD_FE_URL, process.env.DEV_FE_URL]
 server.use(
   cors({
     origin: function (origin, next) {
