@@ -9,6 +9,7 @@ import { newBookValidation } from "./validation.js"
 import PostsModel from "./schema.js"
 import ProfileModel from "../Profile/profile-model.js"
 import CommentModel from "../Comment/comment-model.js"
+import { JWTAuthMiddleware } from "../authrizationFunctions/token.js"
 const postRouter = express.Router()
 
 const cloudinaryUploaderImageUrl = multer({
@@ -23,17 +24,17 @@ const cloudinaryUploaderImageUrl = multer({
 // ************************************* ROUTERS *************************************
 
 // -----------------------------------POST--------------------------------------
-postRouter.post("/", async (req, res, next) => {
-  let defPost = {
-    text: "This is default text from post BE -->> mongo db is easier to understand than postgres",
-    image: "https://media.istockphoto.com/photos/yellow-vintage-tram-on-the-street-in-lisbon-portugal-picture-id1221460597?s=612x612",
-    user: "6214fc2844fe9da6dc2d643f",
-  }
+postRouter.post("/", JWTAuthMiddleware, async (req, res, next) => {
+  // let defPost = {
+  //   text: "This is default text from post BE -->> mongo db is easier to understand than postgres",
+  //   image: "https://media.istockphoto.com/photos/yellow-vintage-tram-on-the-street-in-lisbon-portugal-picture-id1221460597?s=612x612",
+  //   user: "6214fc2844fe9da6dc2d643f",
+  // }
   try {
     const errorsList = validationResult(req)
     if (errorsList.isEmpty()) {
       console.log(req.body)
-      const newPost = new PostsModel({ ...defPost, ...req.body })
+      const newPost = new PostsModel({ ...req.body, user: req.user._id })
       const { _id } = await newPost.save()
       res.status(201).send({ _id })
     } else {
@@ -44,7 +45,7 @@ postRouter.post("/", async (req, res, next) => {
   }
 })
 // -----------------------------------GET--------------------------------------
-postRouter.get("/", async (req, res, next) => {
+postRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
   try {
     const mongoQuery = q2m(req.query)
     const { total, post } = await PostsModel.findPostWithProfile(mongoQuery)
@@ -58,7 +59,8 @@ postRouter.get("/", async (req, res, next) => {
   }
 })
 // -----------------------------------GET WITH ID--------------------------------------
-postRouter.get("/:postId", async (req, res, next) => {
+
+postRouter.get("/:postId", JWTAuthMiddleware, async (req, res, next) => {
   try {
     const postId = req.params.postId
     const getPosts = await PostsModel.findById(postId)
@@ -77,7 +79,7 @@ postRouter.get("/:postId", async (req, res, next) => {
   }
 })
 // -----------------------------------PUT--------------------------------------
-postRouter.put("/:postId", async (req, res, next) => {
+postRouter.put("/:postId", JWTAuthMiddleware, async (req, res, next) => {
   try {
     const postId = req.params.postId
     const updatedPost = await PostsModel.findByIdAndUpdate(postId, req.body, {
@@ -109,9 +111,9 @@ postRouter.delete("/:postId", async (req, res, next) => {
 })
 // ******************************************* ROUTE FOR IMAGE UPLOAD *******************************************
 
-postRouter.post("/:postId/uploadPostImg", cloudinaryUploaderImageUrl, async (req, res, next) => {
+postRouter.post("/:id/uploadPostImg", cloudinaryUploaderImageUrl, async (req, res, next) => {
   try {
-    const postId = req.params.postId
+    const postId = req.params.id
     const updateProduct = await PostsModel.findByIdAndUpdate(
       postId,
       { image: req.file.path },

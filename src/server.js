@@ -5,12 +5,13 @@ import mongoose from "mongoose"
 import profilesRouter from "./services/Profile/profile.js"
 import postRouter from "./services/Post/post.js"
 import { badRequestHandler, unauthorizedHandler, notFoundHandler, genericErrorHandler } from "./errorHandlers.js"
+import authRouter from "./services/Auth/Auth.js"
 
 const server = express()
 const port = process.env.PORT || 3001
 
 // ************************************* MIDDLEWARES ***************************************.
-const whiteListOrigins = [process.env.PROD_FE_URL, process.env.DEV_FE_URL]
+const whiteListOrigins = [process.env.PROD_FE_URL, process.env.DEV_FE_URL, process.env.DEV_FE_URL2]
 server.use(
   cors({
     origin: function (origin, next) {
@@ -22,9 +23,10 @@ server.use(
 server.use(express.json())
 
 // ************************************* ROUTES ********************************************
-server.use("/posts", postRouter)
+server.use("/api/auth", authRouter)
+server.use("/api/posts", postRouter)
 
-server.use("/profiles", profilesRouter)
+server.use("/api/profiles", profilesRouter)
 // ************************************** ERROR HANDLERS ***********************************
 server.use(badRequestHandler)
 server.use(unauthorizedHandler)
