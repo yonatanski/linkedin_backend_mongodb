@@ -59,6 +59,32 @@ profilesRouter.post("/:profileId/picture", cloudinaryUploader, async (req, res, 
   }
 })
 
+/************************* (get) getting all profiles ************************/
+profilesRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
+  try {
+    const defaultQuery = {
+      sort: "=createdAt",
+      skip: 0,
+      limit: 20,
+    }
+
+    const query = { ...defaultQuery, ...req.query }
+    const mongoQuery = q2m(query)
+    const total = await ProfileModel.countDocuments(mongoQuery.criteria)
+
+    const profiles = await ProfileModel.find(mongoQuery.criteria).sort(mongoQuery.options.sort).skip(mongoQuery.options.skip).limit(mongoQuery.options.limit)
+
+    res.status(201).send({
+      links: mongoQuery.links("/profiles", total),
+      total,
+      totalPages: Math.ceil(total / mongoQuery.options.limit),
+      profiles,
+    })
+  } catch (error) {
+    next(error)
+  }
+})
+
 /************************* (get) get a loged in user profile ************************/
 profilesRouter.get("/me", JWTAuthMiddleware, async (req, res, next) => {
   try {
@@ -91,32 +117,6 @@ profilesRouter.get("/:profileId/downloadPdf", async (req, res, next) => {
     const destination = res
     pipeline(source, destination, (err) => {
       if (err) next(err)
-    })
-  } catch (error) {
-    next(error)
-  }
-})
-
-/************************* (get) getting all profiles ************************/
-profilesRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
-  try {
-    const defaultQuery = {
-      sort: "=createdAt",
-      skip: 0,
-      limit: 20,
-    }
-
-    const query = { ...defaultQuery, ...req.query }
-    const mongoQuery = q2m(query)
-    const total = await ProfileModel.countDocuments(mongoQuery.criteria)
-
-    const profiles = await ProfileModel.find(mongoQuery.criteria).sort(mongoQuery.options.sort).skip(mongoQuery.options.skip).limit(mongoQuery.options.limit)
-
-    res.status(201).send({
-      links: mongoQuery.links("/profiles", total),
-      total,
-      totalPages: Math.ceil(total / mongoQuery.options.limit),
-      profiles,
     })
   } catch (error) {
     next(error)

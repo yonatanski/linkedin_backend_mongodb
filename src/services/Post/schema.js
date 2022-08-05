@@ -24,7 +24,7 @@ postSchema.static("findPostWithProfile", async function (mongoQuery) {
     .sort(mongoQuery.options.sort) // no matter in which order you call this options, Mongo will ALWAYS do SORT, SKIP, LIMIT in this order
     .populate({
       path: "user",
-      select: "name image bio",
+      select: "name surname image bio",
     })
     .populate({
       path: "likes",
