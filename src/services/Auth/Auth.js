@@ -3,18 +3,22 @@ import { validationResult } from "express-validator"
 import createHttpError from "http-errors"
 import { authenticateUser } from "../authrizationFunctions/authntication-tools.js"
 import profileModel from "../Profile/profile-model.js"
+import User from "../User/user.js"
+import userRegistration from "../Validation/userRegistration.js"
 
 // import userLoginValidation from "../validation/userLogin.js"
 // import userRegisterValidation from "../validation/userRegister.js"
 
 const authRouter = express.Router()
 // *********************************************** REGISTER ***********************************************
-authRouter.post("/register", async (req, res, next) => {
+authRouter.post("/register", userRegistration, async (req, res, next) => {
   try {
     const errorsList = validationResult(req)
 
     if (errorsList.isEmpty()) {
       const newUser = new profileModel(req.body)
+      const user = new User(req.body)
+      await user.save()
       const savedUser = await newUser.save()
       console.log(savedUser)
       if (savedUser) {

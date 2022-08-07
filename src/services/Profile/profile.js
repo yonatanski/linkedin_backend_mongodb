@@ -184,7 +184,7 @@ profilesRouter.post("/:profileId/experiences", async (req, res, next) => {
     if (reqProfile) {
       const newExprience = { ...req.body, image: "https://www.unfe.org/wp-content/uploads/2019/04/SM-placeholder.png" }
       const updatedProfile = await ProfileModel.findByIdAndUpdate(req.params.profileId, { $push: { experiences: newExprience } }, { new: true })
-      res.status(201).send(updatedProfile)
+      res.status(201).send(updatedProfile.experiences)
     } else {
       res.status(404).send(`Profile with id ${req.params.profileId} not found`)
     }
@@ -193,19 +193,19 @@ profilesRouter.post("/:profileId/experiences", async (req, res, next) => {
   }
 })
 
-/************************* (get) get all experiences of a specific user ************************/
-// profilesRouter.get("/:profileId/experiences", async (req, res, next) => {
-//   try {
-//     const reqProfile = await ProfileModel.findById(req.params.profileId)
-//     if (reqProfile) {
-//       res.status(201).send(reqProfile.experiences)
-//     } else {
-//       res.status(404).send(`Profile with id ${req.params.profileId} not found`)
-//     }
-//   } catch (error) {
-//     next(error)
-//   }
-// })
+// /************************* (get) get all experiences of a specific user ************************/
+profilesRouter.get("/:profileId/experiences", async (req, res, next) => {
+  try {
+    const reqProfile = await ProfileModel.findById(req.params.profileId)
+    if (reqProfile) {
+      res.status(201).send(reqProfile.experiences)
+    } else {
+      res.status(404).send(`Profile with id ${req.params.profileId} not found`)
+    }
+  } catch (error) {
+    next(error)
+  }
+})
 
 // /************************* (csv) create a csv file of experiences ************************/
 // profilesRouter.get("/:profileId/experiences/csv", async (req, res, next) => {
@@ -272,28 +272,28 @@ profilesRouter.post("/:profileId/experiences", async (req, res, next) => {
 //   }
 // })
 // /************************* (put) edit a profile's specific experience ************************/
-// profilesRouter.put("/:profileId/experiences/:experienceId", async (req, res, next) => {
-//   try {
-//     const reqProfile = await ProfileModel.findByIdAndUpdate(req.params.profileId)
-//     if (reqProfile) {
-//       const index = reqProfile.experiences.findIndex((exp) => exp._id.toString() === req.params.experienceId)
-//       if (index !== -1) {
-//         reqProfile.experiences[index] = {
-//           ...reqProfile.experiences[index].toObject(),
-//           ...req.body,
-//         }
-//         await reqProfile.save()
-//         res.send(reqProfile)
-//       } else {
-//         next(createError(404, `could not find the specific experience with id ${req.params.experienceId}`))
-//       }
-//     } else {
-//       next(createError(404, `could not find the specific profile with id ${req.params.profileId}`))
-//     }
-//   } catch (error) {
-//     next(error)
-//   }
-// })
+profilesRouter.put("/me/experiences/:experienceId", JWTAuthMiddleware, async (req, res, next) => {
+  try {
+    const reqProfile = await ProfileModel.findByIdAndUpdate(req.user._id)
+    if (reqProfile) {
+      const index = reqProfile.experiences.findIndex((exp) => exp._id.toString() === req.params.experienceId)
+      if (index !== -1) {
+        reqProfile.experiences[index] = {
+          ...reqProfile.experiences[index].toObject(),
+          ...req.body,
+        }
+        await reqProfile.save()
+        res.send(reqProfile)
+      } else {
+        next(createError(404, `could not find the specific experience with id ${req.params.experienceId}`))
+      }
+    } else {
+      next(createError(404, `could not find the specific profile with id ${req.params.profileId}`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
 
 // /************************* (delete) delete a specific experience of a profile's ************************/
 

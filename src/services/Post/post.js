@@ -153,7 +153,7 @@ postRouter.get("/:postId/comments", async (req, res, next) => {
     const postId = req.params.postId
     const reqPost = await CommentModel.find({ post: postId }).populate({
       path: "user",
-      select: "name surname image",
+      select: "name surname bio image",
     })
     if (reqPost) {
       res.send(reqPost)

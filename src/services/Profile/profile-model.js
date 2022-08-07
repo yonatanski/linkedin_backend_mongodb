@@ -11,28 +11,28 @@ const profileSchema = new Schema(
   {
     name: { type: String, required: true },
     surname: { type: String, required: true },
-    email: { type: String, required: true },
-    bio: { type: String, required: true },
-    title: { type: String, required: true },
-    area: { type: String, required: true },
-    image: { type: String, required: true },
-    password: { type: String, required: true, uniqe: true },
-    username: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true },
+    bio: { type: String },
+    title: { type: String },
+    area: { type: String },
+    image: { type: String, default: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzI7YtwWFUJbdWenZz4tSgKpdLuRHESbE8ww&usqp=CAU" },
+    password: { type: String, required: true },
+    username: { type: String, unique: true },
     // token: { type: String, required: true, unique: true },
     // "connection":[connectionSchema],
 
-    // experiences: [
-    //   {
-    //     role: { type: String, required: true },
-    //     company: { type: String, required: true },
-    //     startDate: { type: Date, required: true },
-    //     endDate: { type: Date },
-    //     description: { type: String, required: true },
-    //     area: { type: String, required: true },
-    //     username: { type: String, required: true },
-    //     image: { type: String, required: true },
-    //   },
-    // ],
+    experiences: [
+      {
+        role: { type: String, required: true },
+        company: { type: String, required: true },
+        startDate: { type: Date, required: true },
+        endDate: { type: Date, required: true },
+        description: { type: String, required: true },
+        area: { type: String, required: true },
+
+        image: { type: String },
+      },
+    ],
   },
   {
     timestamps: true,
