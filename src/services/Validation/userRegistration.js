@@ -1,8 +1,8 @@
 import { body } from "express-validator"
 
 const userRegistration = [
-  body("name").exists().withMessage("name is required").isString().withMessage("name must be string"),
-  body("surname").exists().withMessage("surname is required").isString().withMessage("surname must be string"),
+  body("name").exists().withMessage("name is required"),
+  body("surname").exists().withMessage("surname is required"),
   body("email")
     .exists()
     .isEmail()

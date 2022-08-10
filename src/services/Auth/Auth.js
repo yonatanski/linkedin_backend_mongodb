@@ -1,4 +1,5 @@
 import express from "express"
+import passport from "passport"
 import { validationResult } from "express-validator"
 import createHttpError from "http-errors"
 import { authenticateUser } from "../authrizationFunctions/authntication-tools.js"
@@ -57,4 +58,18 @@ authRouter.post("/login", async (req, res, next) => {
   }
 })
 
+authRouter.get("/googleLogin", passport.authenticate("google", { scope: ["email", "profile"] }))
+authRouter.get("/googleRedirect", passport.authenticate("google"), (req, res, next) => {
+  try {
+    // passport middleware will receive the response from Google, then we gonna execute the route handler
+    console.log(req.user)
+    // res.send({ token: req.user.token })
+
+    res.redirect(`${process.env.DEV_FE_URL}/oauth/${req.user.accessToken}`)
+    // res.send(req.user)
+  } catch (error) {
+    next(error)
+  }
+})
 export default authRouter
+// http://localhost:3001/api/auth/undefined/?accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MmYyYjA1NmIzMmQ1NDZmNWMyMGU1NjIiLCJpYXQiOjE2NjAwNzIzMjcsImV4cCI6MTY2MDY3NzEyN30.4nkC6t_hVI0T_m7JEI4CgEc3SHbfN07kPu0Mmchlm5U

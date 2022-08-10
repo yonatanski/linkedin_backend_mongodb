@@ -6,9 +6,13 @@ import profilesRouter from "./services/Profile/profile.js"
 import postRouter from "./services/Post/post.js"
 import { badRequestHandler, unauthorizedHandler, notFoundHandler, genericErrorHandler } from "./errorHandlers.js"
 import authRouter from "./services/Auth/Auth.js"
+import googleStrategy from "./services/authrizationFunctions/oauth.js"
+import passport from "passport"
 
 const server = express()
 const port = process.env.PORT || 3001
+
+passport.use("google", googleStrategy)
 
 // ************************************* MIDDLEWARES ***************************************.
 const whiteListOrigins = [process.env.PROD_FE_URL, process.env.DEV_FE_URL, process.env.DEV_FE_URL2]
@@ -20,7 +24,9 @@ server.use(
     },
   })
 )
+
 server.use(express.json())
+server.use(passport.initialize())
 
 // ************************************* ROUTES ********************************************
 server.use("/api/auth", authRouter)

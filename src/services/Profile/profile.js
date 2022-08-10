@@ -84,6 +84,20 @@ profilesRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
     next(error)
   }
 })
+/************************* (get) getting by search name using quey params profiles ************************/
+profilesRouter.get("/search", JWTAuthMiddleware, async (req, res, next) => {
+  try {
+    const query = req.query.query
+    const searchResult = await ProfileModel.find({ name: query })
+    if (searchResult) {
+      res.send(searchResult)
+    } else {
+      next(createHttpError(404, `REQUEST NOT FOUND !!`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
 
 /************************* (get) get a loged in user profile ************************/
 profilesRouter.get("/me", JWTAuthMiddleware, async (req, res, next) => {

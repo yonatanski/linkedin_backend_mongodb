@@ -58,6 +58,22 @@ postRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
     next(error)
   }
 })
+postRouter.get("/search", JWTAuthMiddleware, async (req, res, next) => {
+  try {
+    const query = req.query.query
+    const searchResult = await PostsModel.find({ name: query }).populate({
+      path: "user",
+      select: "name surname image bio",
+    })
+    if (searchResult) {
+      res.send(searchResult)
+    } else {
+      next(createHttpError(404, `REQUEST NOT FOUND !!`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
 // -----------------------------------GET WITH ID--------------------------------------
 
 postRouter.get("/:postId", JWTAuthMiddleware, async (req, res, next) => {

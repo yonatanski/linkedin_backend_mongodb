@@ -16,10 +16,11 @@ const profileSchema = new Schema(
     title: { type: String },
     area: { type: String },
     image: { type: String, default: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzI7YtwWFUJbdWenZz4tSgKpdLuRHESbE8ww&usqp=CAU" },
-    password: { type: String, required: true },
+    password: { type: String },
     username: { type: String, unique: true },
     // token: { type: String, required: true, unique: true },
     // "connection":[connectionSchema],
+    googleId: { type: String },
 
     experiences: [
       {
