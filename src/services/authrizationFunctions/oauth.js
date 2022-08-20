@@ -23,7 +23,7 @@ const googleStrategy = new GoogleStrategy(
         const token = await authenticateUser(user)
 
         // 3. We go next (we go to the route handler)
-        passportNext(null, { User: user, accessToken:token })
+        passportNext(null, { User: user, accessToken: token })
       } else {
         // 4. Else if the user is not in our db --> add the user to db and then create token(s) for him/her
 
@@ -39,7 +39,7 @@ const googleStrategy = new GoogleStrategy(
         const token = await authenticateUser(saveProfile)
 
         // 5. We go next (we go to the route handler)
-        passportNext(null, { saveProfile, token })
+        passportNext(null, { User: saveProfile, accessToken: token })
       }
     } catch (error) {
       passportNext(error)
