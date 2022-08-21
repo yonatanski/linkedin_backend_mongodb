@@ -65,7 +65,7 @@ authRouter.get("/googleRedirect", passport.authenticate("google"), (req, res, ne
     console.log(req.user)
     // res.send({ token: req.user.token })
 
-    res.redirect(`${process.env.DEV_FE_URL}/oauth/${req.user.accessToken}`)
+    res.redirect(`${process.env.PROD_FE_URL}/oauth/${req.user.accessToken}`)
     // res.send(req.user)
   } catch (error) {
     next(error)
